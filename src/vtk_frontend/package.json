@@ -6,7 +6,8 @@
     "@tailwindcss/vite": "^4.1.11",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "tw-animate-css": "^1.3.5"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
