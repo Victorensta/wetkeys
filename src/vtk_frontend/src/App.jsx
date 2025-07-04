@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { vtk_backend } from "declarations/vtk_backend";
-import { Button } from "@/components/ui/button"
-
-
-export default App
+import { Button } from "@/components/ui/button";
 
 function App() {
   const [greeting, setGreeting] = useState("");
