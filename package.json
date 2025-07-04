@@ -15,5 +15,8 @@
   "type": "module",
   "workspaces": [
     "src/vtk_frontend"
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "^24.0.10"
+  }
 }
