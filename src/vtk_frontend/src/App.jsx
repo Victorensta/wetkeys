@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { vtk_backend } from 'declarations/vtk_backend';
+import { useState } from "react";
+import { vtk_backend } from "declarations/vtk_backend";
 
 function App() {
-  const [greeting, setGreeting] = useState('');
+  const [greeting, setGreeting] = useState("");
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -24,6 +24,7 @@ function App() {
         <button type="submit">Click Me!</button>
       </form>
       <section id="greeting">{greeting}</section>
+      <div class="bg-blue-500 text-white text-xl p-4 rounded">✅ Tailwind is working!</div>
     </main>
   );
 }
