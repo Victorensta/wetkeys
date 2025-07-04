@@ -26,7 +26,12 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react(), environment("all", { prefix: "CANISTER_" }), environment("all", { prefix: "DFX_" })],
+  plugins: [
+    react(),
+    tailwindcss(),
+    environment("all", { prefix: "CANISTER_" }),
+    environment("all", { prefix: "DFX_" }),
+  ],
   test: {
     environment: "jsdom",
     setupFiles: "src/setupTests.js",
