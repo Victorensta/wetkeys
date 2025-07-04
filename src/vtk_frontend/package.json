@@ -26,6 +26,7 @@
   "name": "vtk_frontend",
   "private": true,
   "scripts": {
+    "dev": "vite",
     "build": "tsc && vite build",
     "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss}\"",
     "prebuild": "dfx generate",
