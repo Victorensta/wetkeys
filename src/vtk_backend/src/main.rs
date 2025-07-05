@@ -20,7 +20,8 @@ fn upload_file_continue(request: UploadFileContinueRequest) -> Result<(), Upload
 
 #[update]
 fn register_file(request: RegisterFileRequest) -> RegisterFileResponse {
-    vtk_backend::api::register_file(request)
+    let caller = ic_cdk::caller();
+    vtk_backend::api::register_file(caller, request)
 }
 
 #[query]

@@ -1,5 +1,3 @@
-import { vtk_backend } from "../../../declarations/vtk_backend";
-
 // Types for file metadata (from backend)
 export type FileStatus =
   | { uploaded: { uploaded_at: bigint } }
@@ -19,11 +17,12 @@ const DEFAULT_AGGREGATOR_API = "https://aggregator.walrus-testnet.walrus.space/v
 const DEFAULT_PUBLISHER_API = "https://publisher.walrus-testnet.walrus.space/v1/blobs";
 
 // Download a file (ICP or Walrus)
-export async function downloadFile(file: FileMetadata) {
+export async function downloadFile(file: FileMetadata, actor?: any) {
   if (file.storage_provider === "icp" || !file.storage_provider) {
     // Download from ICP backend
+    if (!actor) throw new Error("Actor is required for ICP file operations");
     // Assume chunk_id = 0 for now (single chunk)
-    const response = await vtk_backend.download_file(file.file_id, BigInt(0));
+    const response = await actor.download_file(file.file_id, BigInt(0));
     if ("found_file" in response && response.found_file) {
       const fileData = response.found_file;
       if (fileData.contents && fileData.contents.length > 0) {
@@ -53,9 +52,10 @@ export async function downloadFile(file: FileMetadata) {
 }
 
 // Delete a file (ICP or Walrus)
-export async function deleteFile(file: FileMetadata) {
+export async function deleteFile(file: FileMetadata, actor?: any) {
   if (file.storage_provider === "icp" || !file.storage_provider) {
-    await vtk_backend.delete_file(file.file_id);
+    if (!actor) throw new Error("Actor is required for ICP file operations");
+    await actor.delete_file(file.file_id);
   } else if (file.storage_provider === "walrus") {
     if (!file.blob_id) throw new Error("No blob_id for Walrus file");
     const url = `${DEFAULT_PUBLISHER_API}/${file.blob_id}`;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import FileUpload from "./components/FileUpload";
-import ListFiles from "./components/ListFiles";
+import FileList from "./components/FileList";
 import { vtk_backend as defaultActor } from "declarations/vtk_backend";
 import { createActor, canisterId } from "declarations/vtk_backend";
 import { AuthClient } from "@dfinity/auth-client";
@@ -77,7 +77,7 @@ const identityProvider =
 
       <section id="greeting">{greeting}</section>
       <FileUpload actor={actor} />
-      <ListFiles />
+      {isAuthenticated && <FileList actor={actor} />}
       <div class="bg-blue-500 text-white text-xl p-4 rounded">✅ Tailwind is working!</div>
       <Button>Click me</Button>
 

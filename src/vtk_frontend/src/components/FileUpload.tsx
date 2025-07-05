@@ -142,7 +142,6 @@ export default function FileUpload({ actor }: { actor: any }) {
             blob_id: [blobId],
             requested_at: now,
             uploaded_at: [now],
-            requester_principal: ic_cdk::api::caller(),
           });
           setProgress(100);
         } else if (method === "API") {
@@ -174,7 +173,6 @@ export default function FileUpload({ actor }: { actor: any }) {
             blob_id: [blobId],
             requested_at: now,
             uploaded_at: [now],
-            requester_principal: ic_cdk::api::caller(),
           });
           setProgress(100);
         }
