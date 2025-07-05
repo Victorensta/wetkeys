@@ -90,4 +90,6 @@ service : {
   greet : (name : text) -> (text) query;
   delete_file : (file_id : file_id) -> (delete_file_response);
   register_file : (register_file_request) -> (register_file_response);
+  whoami : () -> (principal) query;
 }
+

@@ -1,12 +1,6 @@
-// use crate::{get_time, File, FileContent, FileMetadata, State};
 use crate::{File, FileContent, FileMetadata, State};
-use candid::CandidType;
-// use candid::Principal;
+use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
-// Not used as we aren't storing encrypted_keys while sharing anymore
-// use std::collections::BTreeMap;
-
-// use super::user_info::get_user_key;
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct UploadFileAtomicRequest {
@@ -78,7 +72,15 @@ pub struct UploadFileAtomicRequest {
 //     file_id
 // }
 
-pub fn upload_file_atomic(request: UploadFileAtomicRequest, state: &mut State) -> u64 {
+pub fn upload_file_atomic(
+    caller: Principal,
+    request: UploadFileAtomicRequest,
+    state: &mut State,
+) -> u64 {
+    if caller == Principal::anonymous() {
+        panic!("Not authenticated");
+    }
+
     let file_id = state.generate_file_id();
     let content = if request.num_chunks == 1 {
         FileContent::Uploaded {
@@ -91,12 +93,14 @@ pub fn upload_file_atomic(request: UploadFileAtomicRequest, state: &mut State) -
             file_type: request.file_type.clone(),
         }
     };
+    
     state.file_contents.insert((file_id, 0), request.content.clone());
     state.file_data.insert(
         file_id,
         File {
             metadata: FileMetadata {
                 file_name: request.name,
+                requester_principal: caller,
                 requested_at: crate::get_time(),
                 uploaded_at: Some(crate::get_time()),
                 storage_provider: "icp".to_string(),
@@ -105,6 +109,14 @@ pub fn upload_file_atomic(request: UploadFileAtomicRequest, state: &mut State) -
             content,
         },
     );
+
+    // Add the caller as the owner of this file
+    state
+        .file_owners
+        .entry(caller)
+        .or_insert_with(Vec::new)
+        .push(file_id);
+
     file_id
 }
 
@@ -126,7 +138,8 @@ mod test {
     fn upload_single_chunk_file() {
         let mut state = State::default();
         let req = make_request("file1.txt", vec![1, 2, 3], "txt", 1);
-        let file_id = upload_file_atomic(req, &mut state);
+        let test_principal = Principal::from_text("2vxsx-fae").unwrap();
+        let file_id = upload_file_atomic(test_principal, req, &mut state);
         let file = state.file_data.get(&file_id).unwrap();
         assert_eq!(file.metadata.file_name, "file1.txt");
         assert!(matches!(&file.content, FileContent::Uploaded { num_chunks: 1, file_type: ref ft } if ft == "txt"));
@@ -137,7 +150,8 @@ mod test {
     fn upload_multi_chunk_file_first_chunk() {
         let mut state = State::default();
         let req = make_request("bigfile.bin", vec![10, 20, 30], "bin", 3);
-        let file_id = upload_file_atomic(req, &mut state);
+        let test_principal = Principal::from_text("2vxsx-fae").unwrap();
+        let file_id = upload_file_atomic(test_principal, req, &mut state);
         let file = state.file_data.get(&file_id).unwrap();
         assert_eq!(file.metadata.file_name, "bigfile.bin");
         assert!(matches!(&file.content, FileContent::PartiallyUploaded { num_chunks: 3, file_type: ref ft } if ft == "bin"));
@@ -147,9 +161,18 @@ mod test {
     #[test]
     fn file_id_increments() {
         let mut state = State::default();
-        let id1 = upload_file_atomic(make_request("a", vec![1], "txt", 1), &mut state);
-        let id2 = upload_file_atomic(make_request("b", vec![2], "txt", 1), &mut state);
+        let test_principal = Principal::from_text("2vxsx-fae").unwrap();
+        let id1 = upload_file_atomic(test_principal, make_request("a", vec![1], "txt", 1), &mut state);
+        let id2 = upload_file_atomic(test_principal, make_request("b", vec![2], "txt", 1), &mut state);
         assert_ne!(id1, id2);
         assert_eq!(id2, id1 + 1);
+    }
+
+    #[test]
+    fn anonymous_user_cannot_upload() {
+        let mut state = State::default();
+        let req = make_request("file1.txt", vec![1, 2, 3], "txt", 1);
+        let result = upload_file_atomic(Principal::anonymous(), req, &mut state);
+        assert!(matches!(result, Err(UploadFileError::NotAuthenticated)));
     }
 }

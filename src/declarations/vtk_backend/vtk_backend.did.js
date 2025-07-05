@@ -77,6 +77,7 @@ export const idlFactory = ({ IDL }) => {
         [upload_file_response],
         [],
       ),
+    'whoami' : IDL.Func([], [IDL.Principal], ['query']),
   });
 };
 export const init = ({ IDL }) => { return []; };
