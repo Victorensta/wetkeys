@@ -130,6 +130,15 @@ export default function FileUpload() {
             signer: keypair,
           });
           console.log("Uploaded to Walrus with blobId:", blobId);
+          // Register in backend
+          const now = BigInt(Date.now());
+          await vtk_backend.register_file({
+            file_name: file.name,
+            storage_provider: "walrus",
+            blob_id: [blobId],
+            requested_at: now,
+            uploaded_at: [now],
+          });
           setProgress(100);
         } else if (method === "API") {
           // API upload logic (basic, hardcoded endpoint)
@@ -149,6 +158,18 @@ export default function FileUpload() {
           }
           const result = await response.json();
           console.log("API upload result:", result);
+          // Try to extract blobId from result
+          const blobId = result?.newlyCreated?.blobObject?.blobId || result?.alreadyCertified?.blobId;
+          if (!blobId) throw new Error("No blobId returned from Walrus API");
+          // Register in backend
+          const now = BigInt(Date.now());
+          await vtk_backend.register_file({
+            file_name: file.name,
+            storage_provider: "walrus",
+            blob_id: [blobId],
+            requested_at: now,
+            uploaded_at: [now],
+          });
           setProgress(100);
         }
       }
