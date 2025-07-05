@@ -41,10 +41,12 @@ type file_metadata = record {
 };
 
 pub struct FileMetadata {
-    pub file_id: u64,
     pub file_name: String,
-    pub file_status: FileStatus,
-    pub shared_with: Vec<User>,
+    pub requester_principal: Principal,
+    pub requested_at: u64,
+    pub uploaded_at: Option<u64>,
+    pub storage_provider: String, // "icp" or "walrus"
+    pub blob_id: Option<String>,  // Only for Walrus files
 }
 ```
 
@@ -59,7 +61,7 @@ type file = record {
 
 pub struct File {
     pub metadata: FileMetadata,
-    pub content: Option<Vec<u8>>,
+    pub content: FileContent,
 }
 ```
 
@@ -76,10 +78,12 @@ pub enum FileContent {
     Uploaded {
         num_chunks: u64,
         file_type: String,
+        owner_key: Vec<u8>,
     },
     PartiallyUploaded {
         num_chunks: u64,
         file_type: String,
+        owner_key: Vec<u8>, // VetKD public key
     },
 }
 ```
@@ -102,8 +106,8 @@ For uploading file chunks (non-atomic).
 
 ```rust
 type upload_file_request = record {
-  file_id : file_id;
-  file_content : blob;
+  name : text;
+  content : blob;
   file_type : text;
   num_chunks : nat64;
 };
@@ -127,8 +131,9 @@ For subsequent chunks in multi-step upload.
 ```rust
 type upload_file_continue_request = record {
   file_id : file_id;
-  chunk_id : nat64;
-  contents : blob;
+  file_content : blob;
+  file_type : text;
+  num_chunks : nat64;
 };
 ```
 
@@ -140,7 +145,7 @@ type download_file_response = variant {
   not_found_file;
   not_uploaded_file;
   permission_error;
-  found_file : found_file;
+  found_file : file_data;
 };
 ```
 
@@ -150,10 +155,10 @@ Upload result status.
 ```rust
 type upload_file_response = variant {
   Ok;
-  Err : upload_file_error;
+  Err : error_with_file_upload;
 };
 
-type upload_file_error = variant {
+type error_with_file_upload = variant {
   already_uploaded;
   not_requested;
 };
@@ -176,7 +181,7 @@ Files are chunked into 2 MB parts for upload.
 
 ### Phase 2: Continue Upload (Subsequent Chunks)
 - Remaining chunks use `upload_file_continue()`
-- Each chunk is stored with a unique (file_id, chunk_id) key
+- Each chunk is stored with the file_id and chunk data
 - File status transitions to **Uploaded** when all chunks are received
 
 ## 6. Frontend Implementation
@@ -208,10 +213,10 @@ Files are chunked into 2 MB parts for upload.
 |------|---------|-------------------|
 | file_id | Unique file identifier | nat64/u64 |
 | file_status | Upload lifecycle state | pending, partially_uploaded, uploaded |
-| file_metadata | File metadata | file_id, file_name, file_status, shared_with |
-| file | Full file object | metadata, optional contents |
-| FileContent (Rust enum) | Tracks upload progress state | Pending, PartiallyUploaded, Uploaded |
+| file_metadata | File metadata | file_name, requester_principal, storage_provider, blob_id |
+| file | Full file object | metadata, FileContent |
+| FileContent (Rust enum) | Tracks upload progress state | Pending, PartiallyUploaded, Uploaded (with owner_key) |
 | upload_file_atomic_request | Upload first chunk atomically | name, content, file_type, num_chunks |
-| upload_file_continue_request | Upload subsequent chunks | file_id, chunk_id, contents |
-| upload_file_request | Upload chunk (non-atomic) | file_id, file_content, file_type, num_chunks |
-| download_file_response | Download response with file data or errors | variants for not_found, permission_error, found_file |
+| upload_file_continue_request | Upload subsequent chunks | file_id, file_content, file_type, num_chunks |
+| upload_file_request | Upload chunk (non-atomic) | name, content, file_type, num_chunks |
+| download_file_response | Download response with file data or errors | variants for not_found, permission_error, file_data |

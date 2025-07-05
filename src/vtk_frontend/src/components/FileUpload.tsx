@@ -16,7 +16,7 @@ const walrusClient = new WalrusClient({
   wasmUrl: walrusWasmUrl,
 });
 
-const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB
+const CHUNK_SIZE = 2 * 1024 * 1024;
 
 // Default Walrus publisher endpoint for API upload
 const DEFAULT_PUBLISHER_API = "https://publisher.walrus-testnet.walrus.space/v1/blobs";

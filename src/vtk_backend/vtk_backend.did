@@ -18,6 +18,7 @@ type file_metadata = record {
   file_id : file_id;
   file_name : text;
   file_status : file_status;
+  shared_with : vec user;
 };
 
 type file_status = variant {
@@ -62,10 +63,10 @@ type upload_file_continue_request = record {
 
 type upload_file_response = variant {
   Ok;
-  Err : upload_file_error;
+  Err : error_with_file_upload;
 };
 
-type upload_file_error = variant {
+type error_with_file_upload = variant {
   already_uploaded;
   not_requested;
 };
