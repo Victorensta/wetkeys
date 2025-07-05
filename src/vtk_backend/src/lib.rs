@@ -96,11 +96,9 @@ pub enum FileContent {
 
 #[derive(CandidType, Serialize, Deserialize, Debug, PartialEq)]
 pub struct FileData {
-    contents: Vec<u8>,
-    file_type: String,
-    // Remove owner_key field as it's not needed with VetKD
-    // owner_key: Vec<u8>,
-    num_chunks: u64,
+    pub contents: Vec<u8>,
+    pub file_type: String,
+    pub num_chunks: u64,
 }
 
 #[derive(CandidType, Serialize, Deserialize, PartialEq, Debug)]

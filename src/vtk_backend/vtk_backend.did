@@ -32,9 +32,10 @@ type user = record {
   // ic_principal : principal;
 };
 
-type file = record {
-  metadata : file_metadata;
-  contents : opt blob;
+type file_data = record {
+  contents : blob;
+  file_type : text;
+  num_chunks : nat64;
 };
 
 type upload_file_request = record {
@@ -73,7 +74,7 @@ type download_file_response = variant {
   not_found_file;
   not_uploaded_file;
   permission_error;
-  Ok : file;
+  found_file : file_data;
 };
 
 type delete_file_response = variant {

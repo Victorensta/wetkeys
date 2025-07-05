@@ -4,6 +4,17 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : IDL.Null,
     'NotFound' : IDL.Null,
   });
+  const file_data = IDL.Record({
+    'contents' : IDL.Vec(IDL.Nat8),
+    'file_type' : IDL.Text,
+    'num_chunks' : IDL.Nat64,
+  });
+  const download_file_response = IDL.Variant({
+    'found_file' : file_data,
+    'permission_error' : IDL.Null,
+    'not_uploaded_file' : IDL.Null,
+    'not_found_file' : IDL.Null,
+  });
   const file_status = IDL.Variant({
     'partially_uploaded' : IDL.Null,
     'pending' : IDL.Record({ 'alias' : IDL.Text, 'requested_at' : IDL.Nat64 }),
@@ -13,16 +24,6 @@ export const idlFactory = ({ IDL }) => {
     'file_status' : file_status,
     'file_name' : IDL.Text,
     'file_id' : file_id,
-  });
-  const file = IDL.Record({
-    'contents' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-    'metadata' : file_metadata,
-  });
-  const download_file_response = IDL.Variant({
-    'Ok' : file,
-    'permission_error' : IDL.Null,
-    'not_uploaded_file' : IDL.Null,
-    'not_found_file' : IDL.Null,
   });
   const register_file_request = IDL.Record({
     'blob_id' : IDL.Opt(IDL.Text),

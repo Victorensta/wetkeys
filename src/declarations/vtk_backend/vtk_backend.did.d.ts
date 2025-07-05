@@ -4,13 +4,14 @@ import type { IDL } from '@dfinity/candid';
 
 export type delete_file_response = { 'Ok' : null } |
   { 'NotFound' : null };
-export type download_file_response = { 'Ok' : file } |
+export type download_file_response = { 'found_file' : file_data } |
   { 'permission_error' : null } |
   { 'not_uploaded_file' : null } |
   { 'not_found_file' : null };
-export interface file {
-  'contents' : [] | [Uint8Array | number[]],
-  'metadata' : file_metadata,
+export interface file_data {
+  'contents' : Uint8Array | number[],
+  'file_type' : string,
+  'num_chunks' : bigint,
 }
 export type file_id = bigint;
 export interface file_metadata {

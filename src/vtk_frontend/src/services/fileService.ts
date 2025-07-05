@@ -24,17 +24,20 @@ export async function downloadFile(file: FileMetadata) {
     // Download from ICP backend
     // Assume chunk_id = 0 for now (single chunk)
     const response = await vtk_backend.download_file(file.file_id, BigInt(0));
-    if ("Ok" in response && response.Ok && response.Ok.contents && response.Ok.contents.length > 0) {
-      const content = response.Ok.contents[0];
-      if (!content) throw new Error("ICP file content is undefined");
-      let uint8Content: Uint8Array;
-      if (content instanceof Uint8Array) {
-        uint8Content = content;
+    if ("found_file" in response && response.found_file) {
+      const fileData = response.found_file;
+      if (fileData.contents && fileData.contents.length > 0) {
+        let uint8Content: Uint8Array;
+        if (fileData.contents instanceof Uint8Array) {
+          uint8Content = fileData.contents;
+        } else {
+          uint8Content = new Uint8Array(fileData.contents);
+        }
+        const blob = new Blob([uint8Content], { type: fileData.file_type || "application/octet-stream" });
+        triggerDownload(blob, file.file_name);
       } else {
-        uint8Content = new Uint8Array(content);
+        throw new Error("ICP file content is empty");
       }
-      const blob = new Blob([uint8Content], { type: "application/octet-stream" });
-      triggerDownload(blob, file.file_name);
     } else {
       throw new Error("ICP file download failed");
     }
