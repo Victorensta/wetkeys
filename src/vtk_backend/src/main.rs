@@ -27,7 +27,8 @@ fn register_file(request: RegisterFileRequest) -> RegisterFileResponse {
 
 #[query]
 fn download_file(file_id: u64, chunk_id: u64) -> FileDownloadResponse {
-    with_state(|s| vtk_backend::api::download_file(s, file_id, chunk_id))
+    let caller = ic_cdk::caller();
+    with_state(|s| vtk_backend::api::download_file(s, caller, file_id, chunk_id))
 }
 
 #[update]
@@ -69,6 +70,7 @@ fn list_files() -> Vec<PublicFileMetadata> {
                     group_name: "".to_string(),          // Fill this if you use groups
                     group_alias: None,                   // Or Some(...) if available
                     file_status,
+                    shared_with: vec![],                 // Empty vector for now since we don't support sharing yet
                 }
             })
         }).collect()

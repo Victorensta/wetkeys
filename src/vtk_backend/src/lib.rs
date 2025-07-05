@@ -61,7 +61,7 @@ pub struct PublicFileMetadata {
     pub group_name: String,
     pub group_alias: Option<String>,
     pub file_status: FileStatus,
-    // pub shared_with: Vec<PublicUser>,
+    pub shared_with: Vec<()>,
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
