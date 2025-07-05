@@ -4,6 +4,7 @@ use vtk_backend::*;
 use vtk_backend::api::UploadFileAtomicRequest;
 use vtk_backend::api::DeleteFileResult;
 use candid::Principal;
+use vtk_backend::api::{RegisterFileRequest, RegisterFileResponse};
 
 #[update]
 fn upload_file_atomic(request: UploadFileAtomicRequest) -> u64 {
@@ -15,6 +16,11 @@ fn upload_file_atomic(request: UploadFileAtomicRequest) -> u64 {
 fn upload_file_continue(request: UploadFileContinueRequest) -> Result<(), UploadFileError> {
     let caller = ic_cdk::caller();
     with_state_mut(|s| vtk_backend::api::upload_file_continue(caller, request, s))
+}
+
+#[update]
+fn register_file(request: RegisterFileRequest) -> RegisterFileResponse {
+    vtk_backend::api::register_file(request)
 }
 
 #[query]
