@@ -24,6 +24,14 @@ export const idlFactory = ({ IDL }) => {
     'not_uploaded_file' : IDL.Null,
     'not_found_file' : IDL.Null,
   });
+  const register_file_request = IDL.Record({
+    'blob_id' : IDL.Opt(IDL.Text),
+    'file_name' : IDL.Text,
+    'requested_at' : IDL.Nat64,
+    'storage_provider' : IDL.Text,
+    'uploaded_at' : IDL.Opt(IDL.Nat64),
+  });
+  const register_file_response = IDL.Record({ 'file_id' : file_id });
   const upload_file_atomic_request = IDL.Record({
     'content' : IDL.Vec(IDL.Nat8),
     'name' : IDL.Text,
@@ -53,6 +61,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'greet' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'list_files' : IDL.Func([], [IDL.Vec(file_metadata)], ['query']),
+    'register_file' : IDL.Func(
+        [register_file_request],
+        [register_file_response],
+        [],
+      ),
     'upload_file_atomic' : IDL.Func(
         [upload_file_atomic_request],
         [file_id],

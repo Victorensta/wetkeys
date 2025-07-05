@@ -99,6 +99,8 @@ pub fn upload_file_atomic(request: UploadFileAtomicRequest, state: &mut State) -
                 file_name: request.name,
                 requested_at: crate::get_time(),
                 uploaded_at: Some(crate::get_time()),
+                storage_provider: "icp".to_string(),
+                blob_id: None,
             },
             content,
         },
