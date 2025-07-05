@@ -4,18 +4,37 @@ import * as path from "path";
 import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 
-const WALLET_DIR = path.join(process.cwd(), ".sui-dev-wallet");
-const WALLET_FILE = path.join(WALLET_DIR, "wallet.json");
-
 // Initialize Sui client for testnet
 const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
 
+function loadEnvFile(): { [key: string]: string } {
+  const envPath = path.join(process.cwd(), ".env");
+  if (!fs.existsSync(envPath)) {
+    return {};
+  }
+
+  const envContent = fs.readFileSync(envPath, "utf-8");
+  const env: { [key: string]: string } = {};
+
+  envContent.split("\n").forEach((line) => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith("#")) {
+      const [key, ...valueParts] = trimmed.split("=");
+      if (key && valueParts.length > 0) {
+        env[key] = valueParts.join("=");
+      }
+    }
+  });
+
+  return env;
+}
+
 function loadKeypair(): Ed25519Keypair | null {
-  if (fs.existsSync(WALLET_FILE)) {
-    const data = fs.readFileSync(WALLET_FILE, "utf-8");
-    const parsed = JSON.parse(data);
-    // Load from base64 string - this should be the full secret key
-    const privateKeyBytes = Buffer.from(parsed.privateKey, "base64");
+  const env = loadEnvFile();
+  const secretKey = env.VITE_SUI_SECRET_KEY;
+
+  if (secretKey) {
+    const privateKeyBytes = Buffer.from(secretKey, "base64");
     return Ed25519Keypair.fromSecretKey(privateKeyBytes);
   }
   return null;
@@ -91,14 +110,13 @@ async function checkBalances(address: string) {
 }
 
 async function main() {
-  if (!fs.existsSync(WALLET_FILE)) {
+  const env = loadEnvFile();
+  const address = env.VITE_SUI_ADDRESS;
+
+  if (!address) {
     console.log("❌ No wallet found. Run 'npx tsx scripts/walrus_wallet.ts' first to generate a wallet.");
     return;
   }
-
-  const data = fs.readFileSync(WALLET_FILE, "utf-8");
-  const parsed = JSON.parse(data);
-  const address = parsed.address;
 
   await checkBalances(address);
 }

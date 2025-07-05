@@ -3,40 +3,82 @@ import * as fs from "fs";
 import * as path from "path";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 
-const WALLET_DIR = path.join(process.cwd(), ".sui-dev-wallet");
-const WALLET_FILE = path.join(WALLET_DIR, "wallet.json");
-
+/**
+ * Save the keypair to the .env file, preserving other variables.
+ * Updates VITE_SUI_SECRET_KEY and VITE_SUI_ADDRESS if they exist, or adds them if not.
+ * Never commit .env files with private keys to version control!
+ */
 function saveKeypair(keypair: Ed25519Keypair) {
-  const privateKey = keypair.getSecretKey();
+  // Use the full 64-byte secret key (private + public) or slice as you wish
+  const privateKey = keypair.getSecretKey().slice(0, 32); // Only the first 32 bytes!
   const privateKeyBase64 = Buffer.from(privateKey).toString("base64");
   const address = keypair.getPublicKey().toSuiAddress();
-  fs.writeFileSync(WALLET_FILE, JSON.stringify({ privateKey: privateKeyBase64, address }, null, 2));
-  console.log(`✅ Wallet saved to ${WALLET_FILE}`);
+
+  console.log("Secret key length (bytes):", privateKey.length);
+  if (privateKey.length !== 64) {
+    console.warn("⚠️ Warning: Secret key is not 64 bytes! It is:", privateKey.length, "bytes.");
+  }
+
+  // --- Append to .env file ---
+  const envPath = path.join(process.cwd(), ".env");
+  const timestamp = new Date().toISOString();
+  const envAppend = `\n# Sui Dev Wallet generated ${timestamp}\nVITE_SUI_SECRET_KEY=${privateKeyBase64}\nVITE_SUI_ADDRESS=${address}\n`;
+  fs.appendFileSync(envPath, envAppend);
+  console.log(`✅ Appended wallet to .env file`);
+  console.log(`📝 Address: ${address}`);
+  console.log(`🔐 Private key appended as VITE_SUI_SECRET_KEY (should be 64 bytes)`);
+  console.log(`🚨 Never commit .env files with private keys to version control!`);
+
+  // --- Save to .sui-dev-wallet/wallet.json ---
+  const walletDir = path.join(process.cwd(), ".sui-dev-wallet");
+  if (!fs.existsSync(walletDir)) {
+    fs.mkdirSync(walletDir, { recursive: true });
+  }
+  const walletJsonPath = path.join(walletDir, "wallet.json");
+  const walletJson = {
+    privateKey: privateKeyBase64,
+    address: address,
+  };
+  fs.writeFileSync(walletJsonPath, JSON.stringify(walletJson, null, 2));
+  console.log(`💾 Wallet also saved to .sui-dev-wallet/wallet.json`);
 }
 
+/**
+ * Load the keypair from the .env file, if present.
+ */
 function loadKeypair(): Ed25519Keypair | null {
-  if (fs.existsSync(WALLET_FILE)) {
-    const data = fs.readFileSync(WALLET_FILE, "utf-8");
-    const parsed = JSON.parse(data);
-    // Load from base64 string
-    const privateKeyBytes = Buffer.from(parsed.privateKey, "base64");
+  const envPath = path.join(process.cwd(), ".env");
+  if (!fs.existsSync(envPath)) {
+    return null;
+  }
+
+  const envContent = fs.readFileSync(envPath, "utf-8");
+  const env: { [key: string]: string } = {};
+
+  envContent.split("\n").forEach((line) => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith("#")) {
+      const [key, ...valueParts] = trimmed.split("=");
+      if (key && valueParts.length > 0) {
+        env[key] = valueParts.join("=");
+      }
+    }
+  });
+
+  const secretKey = env.VITE_SUI_SECRET_KEY;
+  if (secretKey) {
+    const privateKeyBytes = Buffer.from(secretKey, "base64");
     return Ed25519Keypair.fromSecretKey(privateKeyBytes);
   }
   return null;
 }
 
+/**
+ * Ensure a dev wallet exists: load if present, otherwise generate and save a new one.
+ */
 function ensureWallet(): Ed25519Keypair {
-  if (!fs.existsSync(WALLET_DIR)) {
-    fs.mkdirSync(WALLET_DIR);
-  }
-
-  const existing = loadKeypair();
-  if (existing) {
-    console.log("🔐 Existing dev wallet loaded.");
-    return existing;
-  }
-
-  const keypair = Ed25519Keypair.generate();
+  // Always generate a new keypair and save it
+  const keypair = new Ed25519Keypair();
   saveKeypair(keypair);
   console.log("🔧 New dev wallet generated.");
   return keypair;

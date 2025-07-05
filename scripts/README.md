@@ -24,11 +24,11 @@ If you run them from inside the `scripts/` folder, you may get errors about miss
 npx tsx scripts/walrus_wallet.ts
 ```
 
-- If a wallet exists, it will be loaded.
-- If not, a new wallet will be generated and saved to `.sui-dev-wallet/wallet.json`.
-- The wallet file contains:
-  - `privateKey`: base64-encoded private key
-  - `address`: wallet address (hex string)
+- If a `.env` file exists with wallet credentials, it will be loaded.
+- If not, a new wallet will be generated and saved to `.env` file.
+- The `.env` file contains:
+  - `VITE_SUI_SECRET_KEY`: base64-encoded private key
+  - `VITE_SUI_ADDRESS`: wallet address (hex string)
 
 ### Fund Your Wallet
 
@@ -52,7 +52,8 @@ npx tsx scripts/check_balance.ts
 
 - These scripts are for development/testing only.
 - Never use a dev wallet for production or with real funds.
-- If you want to reset your wallet, delete the `.sui-dev-wallet/` folder and run the wallet script again.
+- If you want to reset your wallet, delete the `.env` file and run the wallet script again.
+- The `.env` file is automatically ignored by git for security.
 
 ---
 

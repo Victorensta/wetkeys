@@ -5,6 +5,7 @@ import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import { WalrusClient } from "@mysten/walrus";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import walrusWasmUrl from "@mysten/walrus-wasm/web/walrus_wasm_bg.wasm?url";
+import { Buffer } from "buffer";
 
 // CREATE THE CLIENTS
 const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
@@ -119,10 +120,32 @@ export default function FileUpload() {
         // DEVELOPMENT: Use persistent keypair from environment
         // In production, replace this with real wallet integration
         const secretKey = import.meta.env.VITE_SUI_SECRET_KEY;
+        const bytes = Uint8Array.from(Buffer.from(secretKey, "base64"));
+        if (bytes.length !== 32) throw new Error("Secret key must be 32 bytes");
+        const keypair = Ed25519Keypair.fromSecretKey(bytes);
+        // const secretKey = import.meta.env.VITE_SUI_SECRET_KEY;
         if (!secretKey) {
           throw new Error("VITE_SUI_SECRET_KEY environment variable not set");
         }
-        const keypair = Ed25519Keypair.fromSecretKey(Uint8Array.from(secretKey.split(",").map(Number)));
+
+        console.log("Secret key (base64):", secretKey);
+        console.log("Secret key length (base64):", secretKey.length);
+
+        // Convert base64 string to Uint8Array properly
+        const binaryString = atob(secretKey);
+        console.log("Binary string length:", binaryString.length);
+
+        // const bytes = new Uint8Array(binaryString.length);
+        // for (let i = 0; i < binaryString.length; i++) {
+        //   bytes[i] = binaryString.charCodeAt(i);
+        // }
+        // const bytes = Uint8Array.from(Buffer.from(secretKey, "base64"));
+
+        console.log("Bytes array length:", bytes.length);
+        console.log("First 10 bytes:", bytes.slice(0, 10));
+        console.log("Last 10 bytes:", bytes.slice(-10));
+
+        // const keypair = Ed25519Keypair.fromSecretKey(bytes);
         const { blobId } = await walrusClient.writeBlob({
           blob,
           deletable: false,
