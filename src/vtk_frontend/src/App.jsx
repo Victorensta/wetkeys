@@ -1,4 +1,5 @@
 import { useState } from "react";
+import FileUpload from "./components/FileUpload";
 import { vtk_backend } from "declarations/vtk_backend";
 import { Button } from "@/components/ui/button";
 
@@ -25,6 +26,7 @@ function App() {
         <button type="submit">Click Me!</button>
       </form>
       <section id="greeting">{greeting}</section>
+      <FileUpload />
       <div class="bg-blue-500 text-white text-xl p-4 rounded">✅ Tailwind is working!</div>
       <Button>Click me</Button>
     </main>
