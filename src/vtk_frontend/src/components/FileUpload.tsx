@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 // import { backend } from "@/declarations/backend"; // Adjust path if needed
 import { vtk_backend } from "../../../declarations/vtk_backend";
 import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
@@ -6,6 +6,7 @@ import { WalrusClient } from "@mysten/walrus";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import walrusWasmUrl from "@mysten/walrus-wasm/web/walrus_wasm_bg.wasm?url";
 import { Buffer } from "buffer";
+import { downloadFile, deleteFile } from "../services/fileService";
 
 // CREATE THE CLIENTS
 const suiClient = new SuiClient({ url: getFullnodeUrl("testnet") });
@@ -283,56 +284,6 @@ export default function FileUpload() {
           ✅ Upload successful to {uploadTarget === "icp" ? "ICP" : `Walrus (${method})`}!
         </p>
       )}
-    </div>
-  );
-}
-
-// FileList component: lists files from the backend
-export function FileList() {
-  const [files, setFiles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchFiles() {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await vtk_backend.list_files();
-        setFiles(result);
-      } catch (err) {
-        setError((err as Error).message || "Failed to fetch files");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchFiles();
-  }, []);
-
-  if (loading) return <div>Loading files...</div>;
-  if (error) return <div className="text-red-500">❌ {error}</div>;
-  if (files.length === 0) return <div>No files found.</div>;
-
-  return (
-    <div className="my-6">
-      <h2 className="font-bold mb-2">Uploaded Files (ICP)</h2>
-      <ul className="space-y-2">
-        {files.map((file, idx) => (
-          <li key={file.file_id ?? idx} className="border p-2 rounded">
-            <div>
-              <strong>Name:</strong> {file.file_name}
-            </div>
-            <div>
-              <strong>Status:</strong> {JSON.stringify(file.file_status)}
-            </div>
-            {file.size && (
-              <div>
-                <strong>Size:</strong> {file.size} bytes
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
