@@ -1,4 +1,4 @@
-use crate::{File, FileContent, FileMetadata, State, UploadFileError};
+use crate::{File, FileContent, FileMetadata, State};
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
 
