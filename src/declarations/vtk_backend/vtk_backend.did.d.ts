@@ -54,6 +54,7 @@ export interface _SERVICE {
     [upload_file_continue_request],
     upload_file_response
   >,
+  'whoami' : ActorMethod<[], Principal>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

@@ -2,7 +2,7 @@ pub mod api;
 mod memory;
 
 use candid::CandidType;
-// use candid::Principal;
+use candid::Principal;
 use ic_stable_structures::{
     // memory_manager::MemoryId,
     // storable::Storable, // Import Bound from storable submodule
@@ -245,4 +245,9 @@ pub fn ceil_division(dividend: usize, divisor: usize) -> usize {
 
 fn init_file_contents() -> StableBTreeMap<(FileId, ChunkId), Vec<u8>, Memory> {
     StableBTreeMap::init(crate::memory::get_file_contents_memory())
+}
+
+#[ic_cdk::query]
+fn whoami() -> Principal {
+    ic_cdk::caller()
 }

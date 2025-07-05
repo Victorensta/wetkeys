@@ -74,4 +74,6 @@ service : {
   list_files : () -> (vec file_metadata) query;
   greet : (name : text) -> (text) query;
   delete_file : (file_id : file_id) -> (delete_file_response);
+  whoami : () -> (principal) query;
 }
+
