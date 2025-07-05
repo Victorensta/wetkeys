@@ -208,3 +208,6 @@ canister_ids.json.local
 # Local development
 .local/
 local/
+
+# Sui dev wallet (DO NOT COMMIT PRIVATE KEYS)
+.sui-dev-wallet/
