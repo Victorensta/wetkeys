@@ -8,7 +8,7 @@ pub fn download_file(s: &State, file_id: u64, chunk_id: u64) -> FileDownloadResp
     match s.file_data.get(&file_id) {
         None => FileDownloadResponse::NotFoundFile,
         Some(file) => match &file.content {
-            FileContent::Uploaded { file_type, num_chunks } => {
+            FileContent::Uploaded { file_type, num_chunks, owner_key: _ } => {
                 match s.file_contents.get(&(file_id, chunk_id)) {
                     Some(contents) => FileDownloadResponse::FoundFile(FileData {
                         contents: contents.clone(),
@@ -130,6 +130,7 @@ mod test {
                 content: FileContent::Uploaded {
                     num_chunks: 1,
                     file_type: "txt".to_string(),
+                    owner_key: vec![1, 2, 3], // Test owner key
                 },
             },
         );

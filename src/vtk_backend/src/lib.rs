@@ -145,6 +145,10 @@ pub struct State {
     #[serde(skip, default = "init_file_contents")]
     pub file_contents: StableBTreeMap<(FileId, ChunkId), Vec<u8>, Memory>,
 
+    // User management
+    pub user_profiles: BTreeMap<Principal, UserProfile>,
+    pub username_to_principal: BTreeMap<String, Principal>, // For username uniqueness
+    pub user_count: u64,
 }
 
 impl State {
@@ -161,6 +165,9 @@ impl State {
             file_data: BTreeMap::new(),
             file_owners: BTreeMap::new(),
             file_contents: init_file_contents(),
+            user_profiles: BTreeMap::new(),
+            username_to_principal: BTreeMap::new(),
+            user_count: 0,
         }
     }
 
@@ -240,4 +247,47 @@ fn init_file_contents() -> StableBTreeMap<(FileId, ChunkId), Vec<u8>, Memory> {
 #[ic_cdk::query]
 fn whoami() -> Principal {
     ic_cdk::caller()
+}
+
+// User management types
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct UserProfile {
+    pub principal_id: Principal,
+    pub username: String,
+    pub display_name: Option<String>,
+    pub email: Option<String>,
+    pub created_at: u64,
+    pub last_login: u64,
+    pub storage_used: u64, // in bytes
+    pub file_count: u64,
+    pub is_active: bool,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct CreateUserRequest {
+    pub username: String,
+    pub display_name: Option<String>,
+    pub email: Option<String>,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct UpdateUserRequest {
+    pub username: Option<String>,
+    pub display_name: Option<String>,
+    pub email: Option<String>,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub enum UserResponse {
+    Ok(UserProfile),
+    NotFound,
+    AlreadyExists,
+    InvalidInput,
+    NotAuthenticated,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub enum UserListResponse {
+    Ok(Vec<UserProfile>),
+    NotAuthenticated,
 }

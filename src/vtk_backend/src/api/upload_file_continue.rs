@@ -22,7 +22,7 @@ pub fn upload_file_continue(
             }
 
             let updated_contents = match file.content {
-                FileContent::PartiallyUploaded { num_chunks, file_type } => {
+                FileContent::PartiallyUploaded { num_chunks, file_type, owner_key } => {
                     assert!(chunk_id < num_chunks, "invalid chunk id");
                     assert!(
                         !state.file_contents.contains_key(&(file_id, chunk_id)),
@@ -37,11 +37,13 @@ pub fn upload_file_continue(
                         FileContent::Uploaded {
                             num_chunks,
                             file_type,
+                            owner_key,
                         }
                     } else {
                         FileContent::PartiallyUploaded {
                             num_chunks,
                             file_type,
+                            owner_key,
                         }
                     }
                 }
