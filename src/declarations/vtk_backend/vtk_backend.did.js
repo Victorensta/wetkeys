@@ -51,7 +51,7 @@ export const idlFactory = ({ IDL }) => {
         [download_file_response],
         ['query'],
       ),
-    'greet' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'greet' : IDL.Func([IDL.Text], [IDL.Text], ['query']),
     'list_files' : IDL.Func([], [IDL.Vec(file_metadata)], ['query']),
     'upload_file_atomic' : IDL.Func(
         [upload_file_atomic_request],

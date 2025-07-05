@@ -72,6 +72,6 @@ service : {
   upload_file_continue : (upload_file_continue_request) -> (upload_file_response);
   download_file : (file_id : file_id, chunk_id : nat64) -> (download_file_response) query;
   list_files : () -> (vec file_metadata) query;
-  greet : (name : text) -> (text);
+  greet : (name : text) -> (text) query;
   delete_file : (file_id : file_id) -> (delete_file_response);
 }
