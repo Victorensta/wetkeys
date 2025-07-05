@@ -37,6 +37,8 @@ pub struct FileMetadata {
     // pub requester_principal: Principal,
     pub requested_at: u64,
     pub uploaded_at: Option<u64>,
+    pub storage_provider: String, // "icp" or "walrus"
+    pub blob_id: Option<String>,  // Only for Walrus files
 }
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
