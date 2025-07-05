@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 const identityProvider =
   process.env.DFX_NETWORK === "ic"
     ? "https://identity.ic0.app"
-    : "http://uxrrr-q7777-77774-qaaaq-cai.localhost:4943";
+    : "http://uxrrr-q7777-77774-qaaaq-cai.localhost:4943/";
 
     function App() {
   const [greeting, setGreeting] = useState("");
@@ -76,7 +76,7 @@ const identityProvider =
       </form>
 
       <section id="greeting">{greeting}</section>
-      <FileUpload />
+      <FileUpload actor={actor} />
       <ListFiles />
       <div class="bg-blue-500 text-white text-xl p-4 rounded">✅ Tailwind is working!</div>
       <Button>Click me</Button>

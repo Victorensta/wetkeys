@@ -33,8 +33,7 @@ pub struct FileInfo {
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct FileMetadata {
     pub file_name: String,
-    // pub user_public_key: Vec<u8>,
-    // pub requester_principal: Principal,
+    pub requester_principal: Principal,
     pub requested_at: u64,
     pub uploaded_at: Option<u64>,
 }
@@ -119,6 +118,8 @@ pub enum UploadFileError {
     NotRequested,
     #[serde(rename = "already_uploaded")]
     AlreadyUploaded,
+    #[serde(rename = "not_authenticated")]
+    NotAuthenticated,
 }
 
 #[derive(CandidType, Serialize, Deserialize, Debug, PartialEq)]
@@ -138,18 +139,11 @@ pub struct State {
     // and is used to assign IDs to newly requested files.
     file_count: u64,
 
-    // Keeps track of usernames vs. their principals.
-    // pub users: BTreeMap<Principal, User>,
-
     /// Mapping between file IDs and file information.
     pub file_data: BTreeMap<u64, File>,
 
-
     // Mapping between a user's principal and the list of files that are owned by the user.
-    // pub file_owners: BTreeMap<Principal, Vec<u64>>,
-
-    // Mapping between a user's principal and the list of files that are shared with them.
-    // pub file_shares: BTreeMap<Principal, Vec<u64>>,
+    pub file_owners: BTreeMap<Principal, Vec<u64>>,
 
     /// The contents of the file (stored in stable memory).
     #[serde(skip, default = "init_file_contents")]
@@ -168,8 +162,8 @@ impl State {
     fn new(_rand_seed: &[u8]) -> Self {
         Self {
             file_count: 0,
-            // users: BTreeMap::new(),
             file_data: BTreeMap::new(),
+            file_owners: BTreeMap::new(),
             file_contents: init_file_contents(),
         }
     }

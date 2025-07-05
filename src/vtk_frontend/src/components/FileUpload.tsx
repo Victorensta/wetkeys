@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 // import { backend } from "@/declarations/backend"; // Adjust path if needed
-import { vtk_backend } from "../../../declarations/vtk_backend";
+import { canisterId, createActor, vtk_backend } from "../../../declarations/vtk_backend";
 import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import { WalrusClient } from "@mysten/walrus";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
@@ -17,7 +17,7 @@ const walrusClient = new WalrusClient({
 
 const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB
 
-export default function FileUpload() {
+export default function FileUpload({ actor }: { actor: any }) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -61,12 +61,12 @@ export default function FileUpload() {
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
         const num_chunks = BigInt(totalChunks);
 
+        let backendFileId = null;
         for (let i = 0; i < totalChunks; i++) {
           const start = i * CHUNK_SIZE;
           const end = Math.min(start + CHUNK_SIZE, file.size);
           const chunk = file.slice(start, end);
           const buffer = await chunk.arrayBuffer();
-          const file_content = [...new Uint8Array(buffer)];
 
           if (i === 0) {
             // First chunk with metadata
@@ -77,15 +77,18 @@ export default function FileUpload() {
               num_chunks,
             };
             console.log("upload_file_atomic args:", uploadArgs);
-            await vtk_backend.upload_file_atomic(uploadArgs);
+            const backendFileId = await actor.upload_file_atomic(uploadArgs);
           } else {
-            // Remaining chunks
-            const file_id = BigInt(fileIdCounter);
+            if (backendFileId == null) {
+              setError("No file ID from backend for chunk upload.");
+              setIsUploading(false);
+              return;
+            }
             await vtk_backend.upload_file_continue({
-              file_id,
-              file_content: new Uint8Array(buffer),
+              file_id: backendFileId,
               file_type: file.type || "application/octet-stream",
-              num_chunks,
+              num_chunks: BigInt(totalChunks),
+              file_content: new Uint8Array(buffer),
             });
           }
 
