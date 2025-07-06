@@ -7,6 +7,7 @@
 WETKEYS was developed during the ETH Global hackathon to solve a critical problem in Web3: while blockchain technology empowers users with ownership and transparency, it also exposes raw content to anyone with a link. This is a critical problem
 
 Our solution leverages cutting-edge **Identity-Based Encryption (IBE)** technology to enable secure, private Web3 transfers while maintaining the benefits of decentralized infrastructure.
+Discover Wetkeys: https://www.loom.com/share/762a340787414703990029b33a1b16cf?sid=dfba190c-ae8d-4e0e-8015-4273a97cab35
 
 ## The Problem
 <img width="937" alt="Screenshot 2025-07-06 at 07 00 58" src="https://github.com/user-attachments/assets/15112b7e-6a6c-4947-9b19-3b3876561467" />
