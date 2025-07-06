@@ -104,7 +104,8 @@ WETKEYS combines multiple advanced technologies to create a secure, user-friendl
 - **Near Future**: Integration with additional projects and chains
 
 ## Architecture
-![Screenshot 2025-07-06 074453](https://github.com/user-attachments/assets/984e4517-27fa-4811-968b-ec395d609e1a)
+
+![eth_cannes_vetkeys - Frame 1 (1)](https://github.com/user-attachments/assets/b14a0087-9bd0-4886-8b6b-b377af7540ab)
 
 
 ### Security Layer
