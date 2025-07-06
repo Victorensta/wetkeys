@@ -1,85 +1,143 @@
-# `vtk`
+<img width="892" alt="Screenshot 2025-07-06 at 07 00 42" src="https://github.com/user-attachments/assets/a773ff74-2cfe-4e9f-883d-4c3f1bd2cf60" />
 
-Welcome to your new `vtk` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+#WETKEYS - Web3 Transfers, Safe and Simple
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+## Overview
 
-To learn more before you start working with `vtk`, see the following documentation available online:
+WETKEYS was developed during the ETH Global hackathon to solve a critical problem in Web3: while blockchain technology empowers users with ownership and transparency, it also exposes raw content to anyone with a link. This is a critical problem
 
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
-- [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
-- [Rust Canister Development Guide](https://internetcomputer.org/docs/current/developer-docs/backend/rust/)
-- [ic-cdk](https://docs.rs/ic-cdk)
-- [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
-- [Candid Introduction](https://internetcomputer.org/docs/current/developer-docs/backend/candid/)
+Our solution leverages cutting-edge **Identity-Based Encryption (IBE)** technology to enable secure, private Web3 transfers while maintaining the benefits of decentralized infrastructure.
 
-If you want to start working on your project right away, you might want to try the following commands:
+## The Problem
+<img width="937" alt="Screenshot 2025-07-06 at 07 00 58" src="https://github.com/user-attachments/assets/15112b7e-6a6c-4947-9b19-3b3876561467" />
 
-```bash
-cd vtk/
-dfx help
-dfx canister --help
-```
+Web3 data security presents unique challenges:
+- **Transparency vs Privacy**: Public blockchain data is accessible to anyone
+- **Link-based exposure**: Raw content becomes visible to anyone with access
+- **Security gaps**: Traditional encryption methods don't align with Web3's decentralized nature
 
-## Running the project locally
 
-If you want to test your project locally, you can use the following commands:
+## Our Solution
 
-```bash
-# Starts the replica, running in the background
-dfx start --background
+WETKEYS combines multiple advanced technologies to create a secure, user-friendly transfer system:
 
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy
-```
+### Core Technology Stack
+- **Vetkeys IBE**: Identity-based encryption from Internet Computer (ICP)
+- **Walrus Storage**: Decentralized storage on Sui blockchain
+- **Base Integration**: Payment abstraction layer using USDC
+- **Cross-chain compatibility**: Chain-agnostic architecture
 
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
+### Key Features
+- 🔐 **Identity-Based Encryption**: Based on threshold-variant of Boneh-Franklin IBE
+- 💰 **Simple Payments**: Users pay in USDC with ICP payment abstraction
+- 🌐 **Chain Agnostic**: Works across multiple blockchain networks
+- 🛡️ **Production Ready**: Built with enterprise-grade security
 
-If you have made changes to your backend canister, you can generate a new candid interface with
+## Technology Stack
 
-```bash
-npm run generate
-```
+### Blockchain & Encryption
+- **Vetkeys**: Identity-based encryption on ICP chain
+- **Walrus**: Decentralized storage on Sui
+- **Base**: Payment abstraction layer
+- **Solidity**: Smart contracts for Base integration
 
-at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
+### Development Stack
+- **Backend**: Rust
+- **Frontend**: Next.js
+- **Smart Contracts**: Solidity
+- **Development Tools**: Hardhat
+- **Local Development**: DFX (Internet Computer SDK)
 
-If you are making frontend changes, you can start a development server with
+## Getting Started
 
-```bash
-npm start
-```
+### Prerequisites
+- Node.js and npm
+- DFX (Internet Computer SDK)
+- Hardhat
 
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
+### Installation & Setup
 
-### Note on frontend environment variables
+1. **Start the local ICP chain**
+   ```bash
+   dfx start --clean
+   ```
 
-If you are hosting frontend code somewhere without using DFX, you may need to make one of the following adjustments to ensure your project does not fetch the root key in production:
+2. **Deploy contracts** (in a new terminal)
+   ```bash
+   dfx deploy
+   ```
 
-- set`DFX_NETWORK` to `ic` if you are using Webpack
-- use your own preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations
-  - Setting `canisters -> {asset_canister_id} -> declarations -> env_override to a string` in `dfx.json` will replace `process.env.DFX_NETWORK` with the string in the autogenerated declarations
-- Write your own `createActor` constructor
-
-### Walrus Development Setup
-
-To use the Walrus file upload feature, you need to set up a Sui development keypair:
-
-1. **Generate a keypair** (run this in your browser console or a Node.js script):
-
+3. **Configure Internet Identity**
+   - Copy the "internet identity" "recommended" address from the deployment output
+   - Update `vtk/src/vtk_frontend/src/App.jsx`:
    ```javascript
-   import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
-   const keypair = Ed25519Keypair.generate();
-   console.log(Array.from(keypair.export().privateKey));
+   const identityProvider =
+     process.env.DFX_NETWORK === "ic"
+       ? "https://identity.ic0.app"
+       : "$THISADDRESS"; // Replace with your copied address
    ```
 
-2. **Create a `.env` file** in the project root and add:
-
+4. **Redeploy with updated configuration**
+   ```bash
+   dfx deploy
    ```
-   VITE_SUI_SECRET_KEY=123,456,789,...
+
+5. **Start the frontend** (in a third terminal)
+   ```bash
+   npm run dev
    ```
 
-   Replace the numbers with the output from step 1.
+6. **Test the application**
+   - Navigate to the local frontend URL provided by the dev server
+   - Test user functionalities through the web interface
 
-3. **Fund the wallet** with testnet SUI and WAL tokens for testing.
+## Development Status
 
-**Note**: This is for development only. In production, use real wallet integration.
+### Current Phase
+- ✅ **Alpha Testing**: Core functionality implemented and testing in production
+- ✅ **Vetkeys Integration**: IBE encryption system operational
+- ✅ **Multi-chain Support**: Base and ICP integration complete
+
+### Roadmap
+- **Today**: Kealler app development and testing
+- **Tomorrow**: Developer tools and SDK
+- **Near Future**: Integration with additional projects and chains
+
+## Architecture
+
+### Security Layer
+- **Vetkeys IBE**: Provides identity-based encryption aligned with Mysten Labs' strategy
+- **Threshold Encryption**: Based on Boneh-Franklin IBE with threshold variants
+- **Decentralized Storage**: Walrus ensures data availability without single points of failure
+
+### Payment Layer
+- **USDC Integration**: Simplified user payments
+- **Base Abstraction**: Removes complexity of ICP payment handling
+- **Cross-chain Compatibility**: Seamless experience across different networks
+
+
+
+## Key Innovations
+
+1. **Identity-Based Encryption**: Eliminates complex key management
+2. **Payment Abstraction**: Users interact with familiar USDC payments
+3. **Chain-Agnostic Design**: Works across multiple blockchain ecosystems
+4. **Production-Ready Security**: Built with enterprise-grade encryption standards
+
+## Resources
+
+- [Walrus Documentation](https://www.walrus.xyz/blog/seal-decentralized-storage-encryption)
+- [Vetkeys Technical Details](https://internetcomputer.org/docs/current/developer-docs/integrations/vetkeys/)
+- [Internet Computer Development Guide](https://internetcomputer.org/docs/current/developer-docs/setup/install/)
+
+
+## Team
+
+Our team brings together expertise in blockchain development, cryptography, and financial engineering:
+- **Stefano & Leo**: ICP grant recipients with deep blockchain experience
+- **Victor**: Dual master's degrees in Finance and AI Engineering
+
+<img width="1040" alt="Screenshot 2025-07-06 at 07 00 27" src="https://github.com/user-attachments/assets/10123109-e576-42eb-9935-5672427329ec" />
+
+
+*WETKEYS: Making Web3 transfers safe and simple through advanced cryptography and seamless user experience.*
