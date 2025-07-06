@@ -105,6 +105,9 @@ WETKEYS combines multiple advanced technologies to create a secure, user-friendl
 
 ## Architecture
 
+![eth_cannes_vetkeys - Frame 1](https://github.com/user-attachments/assets/11f866d1-c9f7-484b-9c21-1e817682ce08)
+
+
 ### Security Layer
 - **Vetkeys IBE**: Provides identity-based encryption aligned with Mysten Labs' strategy
 - **Threshold Encryption**: Based on Boneh-Franklin IBE with threshold variants
