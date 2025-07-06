@@ -5,6 +5,7 @@ use vtk_backend::api::UploadFileAtomicRequest;
 use vtk_backend::api::DeleteFileResult;
 use candid::Principal;
 use vtk_backend::api::{RegisterFileRequest, RegisterFileResponse};
+use vtk_backend::{CreateUserRequest, UpdateUserRequest, UserResponse, UserListResponse};
 
 #[update]
 fn upload_file_atomic(request: UploadFileAtomicRequest) -> u64 {
@@ -26,7 +27,8 @@ fn register_file(request: RegisterFileRequest) -> RegisterFileResponse {
 
 #[query]
 fn download_file(file_id: u64, chunk_id: u64) -> FileDownloadResponse {
-    with_state(|s| vtk_backend::api::download_file(s, file_id, chunk_id))
+    let caller = ic_cdk::caller();
+    with_state(|s| vtk_backend::api::download_file(s, caller, file_id, chunk_id))
 }
 
 #[update]
@@ -68,6 +70,7 @@ fn list_files() -> Vec<PublicFileMetadata> {
                     group_name: "".to_string(),          // Fill this if you use groups
                     group_alias: None,                   // Or Some(...) if available
                     file_status,
+                    shared_with: vec![],                 // Empty vector for now since we don't support sharing yet
                 }
             })
         }).collect()
@@ -80,5 +83,41 @@ fn greet(name: String) -> String {
     format!("Hello, {}!", name)
 }
 
+// User management endpoints
+#[update]
+fn create_user_profile(request: CreateUserRequest) -> UserResponse {
+    let caller = ic_cdk::caller();
+    with_state_mut(|s| vtk_backend::api::create_user_profile(caller, request, s))
+}
+
+#[query]
+fn get_user_profile() -> UserResponse {
+    let caller = ic_cdk::caller();
+    with_state(|s| vtk_backend::api::get_user_profile(caller, s))
+}
+
+#[update]
+fn update_user_profile(request: UpdateUserRequest) -> UserResponse {
+    let caller = ic_cdk::caller();
+    with_state_mut(|s| vtk_backend::api::update_user_profile(caller, request, s))
+}
+
+#[update]
+fn delete_user_profile() -> UserResponse {
+    let caller = ic_cdk::caller();
+    with_state_mut(|s| vtk_backend::api::delete_user_profile(caller, s))
+}
+
+#[query]
+fn list_users() -> UserListResponse {
+    let caller = ic_cdk::caller();
+    with_state(|s| vtk_backend::api::list_users(caller, s))
+}
+
+#[query]
+fn get_user_stats() -> UserResponse {
+    let caller = ic_cdk::caller();
+    with_state(|s| vtk_backend::api::get_user_stats(caller, s))
+}
 
 fn main() {}

@@ -61,7 +61,7 @@ pub struct PublicFileMetadata {
     pub group_name: String,
     pub group_alias: Option<String>,
     pub file_status: FileStatus,
-    // pub shared_with: Vec<PublicUser>,
+    pub shared_with: Vec<()>,
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -79,16 +79,12 @@ pub enum FileContent {
     Uploaded {
         num_chunks: u64,
         file_type: String,
-        // owner_key: Vec<u8>, // VetKD public key
-        // No need for shared_keys map as we are moving to vetkeys
-        // shared_keys: BTreeMap<Principal, Vec<u8>>,
+        owner_key: Vec<u8>,
     },
     PartiallyUploaded {
         num_chunks: u64,
         file_type: String,
-        // owner_key: Vec<u8>, // VetKD public key
-        // No need for shared_keys map as we are moving to vetkeys
-        // shared_keys: BTreeMap<Principal, Vec<u8>>,
+        owner_key: Vec<u8>, // VetKD public key
     },
 }
 
@@ -149,6 +145,10 @@ pub struct State {
     #[serde(skip, default = "init_file_contents")]
     pub file_contents: StableBTreeMap<(FileId, ChunkId), Vec<u8>, Memory>,
 
+    // User management
+    pub user_profiles: BTreeMap<Principal, UserProfile>,
+    pub username_to_principal: BTreeMap<String, Principal>, // For username uniqueness
+    pub user_count: u64,
 }
 
 impl State {
@@ -165,6 +165,9 @@ impl State {
             file_data: BTreeMap::new(),
             file_owners: BTreeMap::new(),
             file_contents: init_file_contents(),
+            user_profiles: BTreeMap::new(),
+            username_to_principal: BTreeMap::new(),
+            user_count: 0,
         }
     }
 
@@ -244,4 +247,47 @@ fn init_file_contents() -> StableBTreeMap<(FileId, ChunkId), Vec<u8>, Memory> {
 #[ic_cdk::query]
 fn whoami() -> Principal {
     ic_cdk::caller()
+}
+
+// User management types
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct UserProfile {
+    pub principal_id: Principal,
+    pub username: String,
+    pub display_name: Option<String>,
+    pub email: Option<String>,
+    pub created_at: u64,
+    pub last_login: u64,
+    pub storage_used: u64, // in bytes
+    pub file_count: u64,
+    pub is_active: bool,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct CreateUserRequest {
+    pub username: String,
+    pub display_name: Option<String>,
+    pub email: Option<String>,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct UpdateUserRequest {
+    pub username: Option<String>,
+    pub display_name: Option<String>,
+    pub email: Option<String>,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub enum UserResponse {
+    Ok(UserProfile),
+    NotFound,
+    AlreadyExists,
+    InvalidInput,
+    NotAuthenticated,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub enum UserListResponse {
+    Ok(Vec<UserProfile>),
+    NotAuthenticated,
 }

@@ -86,11 +86,13 @@ pub fn upload_file_atomic(
         FileContent::Uploaded {
             num_chunks: request.num_chunks,
             file_type: request.file_type.clone(),
+            owner_key: vec![], // Empty owner key for now
         }
     } else {
         FileContent::PartiallyUploaded {
             num_chunks: request.num_chunks,
             file_type: request.file_type.clone(),
+            owner_key: vec![], // Empty owner key for now
         }
     };
     
